@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Delivery Route Optimizer</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Delivery route optimization</p>
+            <h1>Shortest route planner</h1>
+          </div>
+          <div class="controls">
+            <label>
+              Source
+              <select id="sourceSelect"></select>
+            </label>
+            <label>
+              Destination
+              <select id="destinationSelect"></select>
+            </label>
+            <label>
+              Algorithm
+              <select id="algorithmSelect">
+                <option value="compare">Run all</option>
+                <option value="dijkstra">Dijkstra</option>
+                <option value="astar">A* Search</option>
+                <option value="bellmanford">Bellman-Ford</option>
+              </select>
+            </label>
+            <button id="runButton" type="button">Run</button>
+          </div>
+        </header>
+
+        <section class="graph-panel" aria-label="Route graph visualization">
+          <svg id="graphSvg" viewBox="0 0 660 470" role="img"></svg>
+        </section>
+      </section>
+
+      <aside class="results-panel">
+        <section class="active-result">
+          <p class="eyebrow">Selected result</p>
+          <h2 id="resultTitle">Ready</h2>
+          <div class="metric-grid">
+            <div>
+              <span>Path</span>
+              <strong id="pathValue">-</strong>
+            </div>
+            <div>
+              <span>Total cost</span>
+              <strong id="costValue">-</strong>
+            </div>
+            <div>
+              <span>Time</span>
+              <strong id="timeValue">-</strong>
+            </div>
+            <div>
+              <span>Nodes explored</span>
+              <strong id="exploredValue">-</strong>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div class="panel-heading">
+            <p class="eyebrow">Comparison</p>
+            <button id="compareButton" type="button">Refresh</button>
+          </div>
+          <div id="comparisonCards" class="comparison-cards"></div>
+        </section>
+      </aside>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
+
