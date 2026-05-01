@@ -5,7 +5,7 @@ from algorithms import ALGORITHMS, astar, bellman_ford, dijkstra
 from graph_data import EDGES, NODES
 
 
-app = Flask(__name__, static_folder="../frontend", static_url_path="")
+app = Flask(__name__, static_folder="./frontend", static_url_path="")
 CORS(app)
 
 
@@ -31,6 +31,20 @@ def index():
 @app.get("/graph")
 def graph():
     return jsonify({"nodes": NODES, "edges": EDGES})
+
+
+@app.get("/animate")
+def animate():
+    source, destination = get_route_nodes()
+    try:
+        results = [
+            dijkstra(source, destination),
+            astar(source, destination),
+            bellman_ford(source, destination),
+        ]
+        return jsonify({"source": source, "destination": destination, "results": results})
+    except ValueError as error:
+        return jsonify({"error": str(error)}), 400
 
 
 @app.get("/run/dijkstra")
@@ -64,4 +78,3 @@ def compare():
 
 if __name__ == "__main__":
     app.run(debug=True)
-

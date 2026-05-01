@@ -25,7 +25,7 @@ def reconstruct_path(previous, source, destination):
     return path if path and path[0] == source else []
 
 
-def format_result(algorithm, source, destination, cost, previous, elapsed_ms, explored):
+def format_result(algorithm, source, destination, cost, previous, elapsed_ms, explored, steps):
     path = reconstruct_path(previous, source, destination)
     return {
         "algorithm": algorithm,
@@ -35,6 +35,7 @@ def format_result(algorithm, source, destination, cost, previous, elapsed_ms, ex
         "totalCost": round(cost, 2) if cost != inf else None,
         "executionTimeMs": round(elapsed_ms, 4),
         "nodesExplored": explored,
+        "steps": steps,
     }
 
 
@@ -54,6 +55,7 @@ def dijkstra(source, destination):
     visited = set()
     queue = [(0, source)]
     distances[source] = 0
+    steps = []
 
     while queue:
         current_distance, current = heappop(queue)
@@ -61,6 +63,11 @@ def dijkstra(source, destination):
             continue
 
         visited.add(current)
+
+        # Record frontier: everything in the heap that hasn't been visited
+        frontier = list({node for _, node in queue if node not in visited})
+        steps.append({"settled": current, "frontier": frontier})
+
         if current == destination:
             break
 
@@ -81,6 +88,7 @@ def dijkstra(source, destination):
         previous,
         elapsed_ms,
         len(visited),
+        steps,
     )
 
 
@@ -93,6 +101,7 @@ def astar(source, destination):
     visited = set()
     queue = [(heuristic(source, destination), 0, source)]
     g_score[source] = 0
+    steps = []
 
     while queue:
         _, current_cost, current = heappop(queue)
@@ -100,6 +109,10 @@ def astar(source, destination):
             continue
 
         visited.add(current)
+
+        frontier = list({node for _, _, node in queue if node not in visited})
+        steps.append({"settled": current, "frontier": frontier})
+
         if current == destination:
             break
 
@@ -121,6 +134,7 @@ def astar(source, destination):
         previous,
         elapsed_ms,
         len(visited),
+        steps,
     )
 
 
@@ -132,6 +146,7 @@ def bellman_ford(source, destination):
     previous = {source: None}
     distances[source] = 0
     explored_nodes = set()
+    steps = []
 
     directed_edges = []
     for start, neighbors in GRAPH.items():
@@ -140,15 +155,28 @@ def bellman_ford(source, destination):
 
     for _ in range(len(GRAPH) - 1):
         changed = False
+        settled_this_round = set()
+        frontier_this_round = set()
+
         for start, end, weight in directed_edges:
             if distances[start] == inf:
                 continue
 
             explored_nodes.add(start)
+            settled_this_round.add(start)
+
             if distances[start] + weight < distances[end]:
                 distances[end] = distances[start] + weight
                 previous[end] = start
+                frontier_this_round.add(end)
                 changed = True
+
+        if settled_this_round:
+            steps.append({
+                "settled": list(settled_this_round),
+                "frontier": list(frontier_this_round),
+            })
+
         if not changed:
             break
 
@@ -167,6 +195,7 @@ def bellman_ford(source, destination):
         previous,
         elapsed_ms,
         len(explored_nodes),
+        steps,
     )
 
 

@@ -3,79 +3,151 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Delivery Route Optimizer</title>
+    <title>Delivery Route Optimizer — Algorithm Visualizer</title>
+    <meta name="description" content="Interactive side-by-side visualization of Dijkstra, A*, and Bellman-Ford shortest path algorithms with animated node exploration." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <main class="app-shell">
-      <section class="workspace">
-        <header class="topbar">
-          <div>
-            <p class="eyebrow">Delivery route optimization</p>
-            <h1>Shortest route planner</h1>
-          </div>
-          <div class="controls">
-            <label>
-              Source
-              <select id="sourceSelect"></select>
-            </label>
-            <label>
-              Destination
-              <select id="destinationSelect"></select>
-            </label>
-            <label>
-              Algorithm
-              <select id="algorithmSelect">
-                <option value="compare">Run all</option>
-                <option value="dijkstra">Dijkstra</option>
-                <option value="astar">A* Search</option>
-                <option value="bellmanford">Bellman-Ford</option>
-              </select>
-            </label>
-            <button id="runButton" type="button">Run</button>
-          </div>
-        </header>
+    <div class="app-shell">
 
-        <section class="graph-panel" aria-label="Route graph visualization">
-          <svg id="graphSvg" viewBox="0 0 660 470" role="img"></svg>
-        </section>
-      </section>
+      <!-- ── Top controls bar ── -->
+      <header class="topbar">
+        <div class="topbar-brand">
+          <p class="eyebrow">DAA — Algorithm Visualizer</p>
+          <h1>Shortest Route Planner</h1>
+        </div>
+        <div class="controls">
+          <label for="sourceSelect">
+            Source
+            <select id="sourceSelect"></select>
+          </label>
+          <label for="destinationSelect">
+            Destination
+            <select id="destinationSelect"></select>
+          </label>
+          <label for="speedSelect">
+            Speed
+            <select id="speedSelect">
+              <option value="600">Slow</option>
+              <option value="300" selected>Medium</option>
+              <option value="80">Fast</option>
+            </select>
+          </label>
+          <button id="runButton" type="button">▶ Run</button>
+          <button id="replayButton" type="button" class="btn-secondary" disabled>↺ Replay</button>
+        </div>
+      </header>
 
-      <aside class="results-panel">
-        <section class="active-result">
-          <p class="eyebrow">Selected result</p>
-          <h2 id="resultTitle">Ready</h2>
-          <div class="metric-grid">
-            <div>
-              <span>Path</span>
-              <strong id="pathValue">-</strong>
+      <!-- ── Three algorithm panels ── -->
+      <main class="graphs-row" id="graphsRow">
+
+        <!-- Dijkstra -->
+        <article class="algo-panel" id="panel-dijkstra">
+          <div class="algo-header">
+            <div class="algo-badge badge-dijkstra">Dijkstra</div>
+            <span class="algo-tag">Greedy · Optimal</span>
+            <div class="animation-status" id="status-dijkstra">Waiting…</div>
+          </div>
+          <div class="graph-wrap">
+            <svg id="svg-dijkstra" viewBox="0 0 660 470" role="img" aria-label="Dijkstra algorithm graph"></svg>
+          </div>
+          <div class="algo-stats" id="stats-dijkstra">
+            <div class="stat-item">
+              <span class="stat-label">Path</span>
+              <strong class="stat-value" id="path-dijkstra">—</strong>
             </div>
-            <div>
-              <span>Total cost</span>
-              <strong id="costValue">-</strong>
+            <div class="stat-item">
+              <span class="stat-label">Cost</span>
+              <strong class="stat-value" id="cost-dijkstra">—</strong>
             </div>
-            <div>
-              <span>Time</span>
-              <strong id="timeValue">-</strong>
+            <div class="stat-item">
+              <span class="stat-label">Explored</span>
+              <strong class="stat-value" id="explored-dijkstra">—</strong>
             </div>
-            <div>
-              <span>Nodes explored</span>
-              <strong id="exploredValue">-</strong>
+            <div class="stat-item">
+              <span class="stat-label">Time</span>
+              <strong class="stat-value" id="time-dijkstra">—</strong>
             </div>
           </div>
-        </section>
+        </article>
 
-        <section>
-          <div class="panel-heading">
-            <p class="eyebrow">Comparison</p>
-            <button id="compareButton" type="button">Refresh</button>
+        <!-- A* -->
+        <article class="algo-panel" id="panel-astar">
+          <div class="algo-header">
+            <div class="algo-badge badge-astar">A* Search</div>
+            <span class="algo-tag">Heuristic · Focused</span>
+            <div class="animation-status" id="status-astar">Waiting…</div>
           </div>
-          <div id="comparisonCards" class="comparison-cards"></div>
-        </section>
-      </aside>
-    </main>
+          <div class="graph-wrap">
+            <svg id="svg-astar" viewBox="0 0 660 470" role="img" aria-label="A* Search algorithm graph"></svg>
+          </div>
+          <div class="algo-stats" id="stats-astar">
+            <div class="stat-item">
+              <span class="stat-label">Path</span>
+              <strong class="stat-value" id="path-astar">—</strong>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Cost</span>
+              <strong class="stat-value" id="cost-astar">—</strong>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Explored</span>
+              <strong class="stat-value" id="explored-astar">—</strong>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Time</span>
+              <strong class="stat-value" id="time-astar">—</strong>
+            </div>
+          </div>
+        </article>
+
+        <!-- Bellman-Ford -->
+        <article class="algo-panel" id="panel-bellman">
+          <div class="algo-header">
+            <div class="algo-badge badge-bellman">Bellman-Ford</div>
+            <span class="algo-tag">Edge relaxation · Thorough</span>
+            <div class="animation-status" id="status-bellman">Waiting…</div>
+          </div>
+          <div class="graph-wrap">
+            <svg id="svg-bellman" viewBox="0 0 660 470" role="img" aria-label="Bellman-Ford algorithm graph"></svg>
+          </div>
+          <div class="algo-stats" id="stats-bellman">
+            <div class="stat-item">
+              <span class="stat-label">Path</span>
+              <strong class="stat-value" id="path-bellman">—</strong>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Cost</span>
+              <strong class="stat-value" id="cost-bellman">—</strong>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Explored</span>
+              <strong class="stat-value" id="explored-bellman">—</strong>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Time</span>
+              <strong class="stat-value" id="time-bellman">—</strong>
+            </div>
+          </div>
+        </article>
+
+      </main>
+
+      <!-- ── Legend ── -->
+      <footer class="legend">
+        <div class="legend-item"><span class="legend-dot dot-source"></span> Source</div>
+        <div class="legend-item"><span class="legend-dot dot-destination"></span> Destination</div>
+        <div class="legend-item"><span class="legend-dot dot-frontier"></span> Frontier (queued)</div>
+        <div class="legend-item"><span class="legend-dot dot-visited"></span> Visited (settled)</div>
+        <div class="legend-item"><span class="legend-dot dot-path"></span> Optimal path</div>
+        <div class="legend-item"><span class="legend-dot dot-unvisited"></span> Unvisited</div>
+      </footer>
+
+    </div>
 
     <script src="/app.js"></script>
   </body>
 </html>
-
