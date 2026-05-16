@@ -3,11 +3,19 @@ from flask_cors import CORS
 
 from algorithms import ALGORITHMS, astar, bellman_ford, dijkstra
 from graph_data import EDGES, NODES
-
+import map_handler
 
 app = Flask(__name__, static_folder="./frontend", static_url_path="")
 CORS(app)
 
+# Cache for the Bangalore map graph to avoid re-downloading
+BANGALORE_GRAPH = None
+
+def get_bng_graph():
+    global BANGALORE_GRAPH
+    if BANGALORE_GRAPH is None:
+        BANGALORE_GRAPH = map_handler.get_bangalore_graph()
+    return BANGALORE_GRAPH
 
 def get_route_nodes():
     source = request.args.get("source", "A").upper()
@@ -46,6 +54,36 @@ def animate():
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
 
+@app.get("/map-route")
+def map_route():
+    source_addr = request.args.get("source", "Indiranagar, Bangalore")
+    dest_addr = request.args.get("destination", "Sarjapur, Bangalore")
+    
+    try:
+        G = get_bng_graph()
+        (s_node, d_node), error = map_handler.get_route_data(G, source_addr, dest_addr)
+        
+        if error:
+            return jsonify({"error": error}), 400
+            
+        g_data, n_data = map_handler.convert_nx_to_custom_graph(G)
+        
+        # Run comparison
+        results = [
+            dijkstra(s_node, d_node, g_data, n_data),
+            astar(s_node, d_node, g_data, n_data),
+        ]
+        
+        return jsonify({
+            "source": source_addr,
+            "destination": dest_addr,
+            "results": results,
+            "nodes": n_data
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 @app.get("/run/dijkstra")
 def run_dijkstra():
@@ -77,4 +115,5 @@ def compare():
 
 
 if __name__ == "__main__":
+    print("Starting Delivery Route Optimizer Server...")
     app.run(debug=True)
