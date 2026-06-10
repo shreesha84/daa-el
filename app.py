@@ -72,6 +72,7 @@ def map_route():
         results = [
             dijkstra(s_node, d_node, g_data, n_data),
             astar(s_node, d_node, g_data, n_data),
+            bellman_ford(s_node, d_node, g_data, n_data),
         ]
         
         return jsonify({

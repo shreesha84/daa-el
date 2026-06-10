@@ -113,6 +113,16 @@ function populateSelects() {
   });
 }
 
+function renderInitialDemoGraphs() {
+  const source = sourceSelect.value;
+  const destination = destinationSelect.value;
+
+  PANELS.forEach(panel => {
+    const svgRef = document.querySelector(`#${panel.svgId}`);
+    if (svgRef) drawBaseGraph(svgRef, source, destination);
+  });
+}
+
 // ── SVG Drawing ──
 function drawBaseGraph(svgEl_ref, source, destination, pathEdgeSet = new Set(), pathNodeSet = new Set()) {
   svgEl_ref.innerHTML = "";
@@ -300,6 +310,8 @@ async function runMap() {
 
 runButton.addEventListener("click", runDemo);
 runMapButton.addEventListener("click", runMap);
+sourceSelect.addEventListener("change", renderInitialDemoGraphs);
+destinationSelect.addEventListener("change", renderInitialDemoGraphs);
 
 // ── Init ──
 async function init() {
@@ -308,6 +320,7 @@ async function init() {
     if (res.ok) {
         graph = await res.json();
         populateSelects();
+        renderInitialDemoGraphs();
     }
   } catch (err) { console.error("Initial load failed:", err); }
 }
